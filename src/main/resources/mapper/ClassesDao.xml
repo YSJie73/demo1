@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.dao.ClassesDao">
+
+    <resultMap type="com.example.entity.Classes" id="ClassesMap">
+        <result property="classnumber" column="classNumber" jdbcType="VARCHAR"/>
+        <result property="departuredata" column="DepartureData" jdbcType="TIMESTAMP"/>
+        <result property="departureairport" column="DepartureAirport" jdbcType="VARCHAR"/>
+        <result property="arrivaldata" column="ArrivalData" jdbcType="TIMESTAMP"/>
+        <result property="arrivalairport" column="ArrivalAirport" jdbcType="VARCHAR"/>
+        <result property="aNumber" column="A_number" jdbcType="INTEGER"/>
+        <result property="bNumber" column="B_number" jdbcType="INTEGER"/>
+        <result property="aprice" column="APrice" jdbcType="INTEGER"/>
+        <result property="bprice" column="BPrice" jdbcType="INTEGER"/>
+        <result property="flightnumber" column="flightNumber" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="ClassesMap">
+        select
+          classNumber, DepartureData, DepartureAirport, ArrivalData, ArrivalAirport, A_number,  B_number, APrice, BPrice, flightNumber
+        from classes
+        where classNumber = #{classnumber}
+    </select>
+
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimits" resultMap="ClassesMap">
+        select
+          classNumber, DepartureData, DepartureAirport, ArrivalData, ArrivalAirport, A_number, B_number, APrice, BPrice, flightNumber
+        from classes
+        <where>
+            <if test="Classes.classnumber != null and Classes.classnumber != ''">
+                and classNumber = #{Classes.classnumber}
+            </if>
+            <if test="Classes.departuredata != null">
+                and DepartureData = #{Classes.departuredata}
+            </if>
+            <if test="Classes.departureairport != null and Classes.departureairport != ''">
+                and DepartureAirport = #{Classes.departureairport}
+            </if>
+            <if test="Classes.arrivaldata != null">
+                and ArrivalData = #{Classes.arrivaldata}
+            </if>
+            <if test="Classes.arrivalairport != null and Classes.arrivalairport != ''">
+                and ArrivalAirport = #{Classes.arrivalairport}
+            </if>
+            <if test="Classes.aNumber != null">
+                and A_number = #{Classes.aNumber}
+            </if>
+
+            <if test="Classes.bNumber != null">
+                and B_number = #{Classes.bNumber}
+            </if>
+            <if test="Classes.aprice != null">
+                and APrice = #{Classes.aprice}
+            </if>
+            <if test="Classes.bprice != null">
+                and BPrice = #{Classes.bprice}
+            </if>
+            <if test="Classes.flightnumber != null and Classes.flightnumber != ''">
+                and flightNumber = #{Classes.flightnumber}
+            </if>
+        </where>
+        limit #{page}, #{pageSize}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from classes
+        <where>
+            <if test="classnumber != null and classnumber != ''">
+                and classNumber = #{classnumber}
+            </if>
+            <if test="departuredata != null">
+                and DepartureData = #{departuredata}
+            </if>
+            <if test="departureairport != null and departureairport != ''">
+                and DepartureAirport = #{departureairport}
+            </if>
+            <if test="arrivaldata != null">
+                and ArrivalData = #{arrivaldata}
+            </if>
+            <if test="arrivalairport != null and arrivalairport != ''">
+                and ArrivalAirport = #{arrivalairport}
+            </if>
+            <if test="aNumber != null">
+                and A_number = #{aNumber}
+            </if>
+
+            <if test="bNumber != null">
+                and B_number = #{bNumber}
+            </if>
+            <if test="aprice != null">
+                and APrice = #{aprice}
+            </if>
+            <if test="bprice != null">
+                and BPrice = #{bprice}
+            </if>
+            <if test="flightnumber != null and flightnumber != ''">
+                and flightNumber = #{flightnumber}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="classnumber" useGeneratedKeys="true">
+        insert into classes(classNumber,DepartureData, DepartureAirport, ArrivalData, ArrivalAirport, A_number, B_number, APrice, BPrice, flightNumber)
+        values (#{classnumber},#{departuredata}, #{departureairport}, #{arrivaldata}, #{arrivalairport}, #{aNumber}, #{bNumber}, #{aprice}, #{bprice}, #{flightnumber})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="classnumber" useGeneratedKeys="true">
+        insert into classes(classNumber,DepartureData, DepartureAirport, ArrivalData, ArrivalAirport, A_number, B_number, APrice, BPrice, flightNumber)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.departuredata}, #{entity.departureairport}, #{entity.arrivaldata}, #{entity.arrivalairport}, #{entity.aNumber}, #{entity.bNumber}, #{entity.aprice}, #{entity.bprice}, #{entity.flightnumber})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="classnumber" useGeneratedKeys="true">
+        insert into classes(classNumber,DepartureData, DepartureAirport, ArrivalData, ArrivalAirport, A_number,  B_number, APrice, BPrice, flightNumber)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.departuredata}, #{entity.departureairport}, #{entity.arrivaldata}, #{entity.arrivalairport}, #{entity.aNumber},  #{entity.bNumber}, #{entity.aprice}, #{entity.bprice}, #{entity.flightnumber})
+        </foreach>
+        on duplicate key update
+        DepartureData = values(DepartureData),
+        DepartureAirport = values(DepartureAirport),
+        ArrivalData = values(ArrivalData),
+        ArrivalAirport = values(ArrivalAirport),
+        A_number = values(A_number),
+        month = values(month),
+        delay = values(delay),
+        B_number = values(B_number),
+        APrice = values(APrice),
+        BPrice = values(BPrice),
+        flightNumber = values(flightNumber)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update classes
+        <set>
+            <if test="classnumber != null">
+                classNumber = #{classnumber},
+            </if>
+            <if test="departuredata != null">
+                DepartureData = #{departuredata},
+            </if>
+            <if test="departureairport != null and departureairport != ''">
+                DepartureAirport = #{departureairport},
+            </if>
+            <if test="arrivaldata != null">
+                ArrivalData = #{arrivaldata},
+            </if>
+            <if test="arrivalairport != null and arrivalairport != ''">
+                ArrivalAirport = #{arrivalairport},
+            </if>
+            <if test="aNumber != null">
+                A_number = #{aNumber},
+            </if>
+
+            <if test="bNumber != null">
+                B_number = #{bNumber},
+            </if>
+            <if test="aprice != null">
+                APrice = #{aprice},
+            </if>
+            <if test="bprice != null">
+                BPrice = #{bprice},
+            </if>
+            <if test="flightnumber != null and flightnumber != ''">
+                flightNumber = #{flightnumber},
+            </if>
+        </set>
+        where classNumber = #{classnumber}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from classes where classNumber = #{classnumber}
+    </delete>
+
+</mapper>
+

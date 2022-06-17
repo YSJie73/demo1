@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.dao.UsersDao">
+
+    <resultMap type="com.example.entity.Users" id="UsersMap">
+        <result property="account" column="account" jdbcType="VARCHAR"/>
+        <result property="sex" column="sex" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="age" column="age" jdbcType="INTEGER"/>
+        <result property="tel" column="tel" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="UsersMap">
+        select
+            account, sex, password, age, tel, name
+        from users
+        where account = #{account}
+    </select>
+
+    <!--登录功能-->
+    <select id="login" resultMap="UsersMap">
+        select * from users
+        <where>
+            <if test="account != null and account != ''">
+                and account = #{account}
+            </if>
+            <if test="password != null and password != ''">
+                and password = #{password}
+            </if>
+        </where>
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimits" resultMap="UsersMap">
+        select
+        account, sex, password, age, tel, name
+        from users
+        <where>
+            <if test="Users.account != null and Users.account != ''">
+                and account = #{Users.account}
+            </if>
+            <if test="Users.sex != null and Users.sex != ''">
+                and sex = #{Users.sex}
+            </if>
+            <if test="Users.password != null and Users.password != ''">
+                and password = #{Users.password}
+            </if>
+            <if test="Users.age != null">
+                and age = #{Users.age}
+            </if>
+            <if test="Users.tel != null and Users.tel != ''">
+                and tel = #{tel}
+            </if>
+            <if test="Users.name != null and Users.name != ''">
+                and name = #{Users.name}
+            </if>
+        </where>
+        limit #{page}, #{pageSize}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from users
+        <where>
+            <if test="account != null and account != ''">
+                and account = #{account}
+            </if>
+            <if test="sex != null and sex != ''">
+                and sex = #{sex}
+            </if>
+            <if test="password != null and password != ''">
+                and password = #{password}
+            </if>
+            <if test="age != null">
+                and age = #{age}
+            </if>
+            <if test="tel != null and tel != ''">
+                and tel = #{tel}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="account" useGeneratedKeys="true">
+        insert into users(account,sex, password, age, tel, name)
+        values (#{account},#{sex}, #{password}, #{age}, #{tel}, #{name})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="account" useGeneratedKeys="true">
+        insert into users(account,sex, password, age, tel, name)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.sex}, #{entity.password}, #{entity.age}, #{entity.tel}, #{entity.name})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="account" useGeneratedKeys="true">
+        insert into users(account,sex, password, age, tel, name)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.sex}, #{entity.password}, #{entity.age}, #{entity.tel}, #{entity.name})
+        </foreach>
+        on duplicate key update
+        sex = values(sex),
+        password = values(password),
+        age = values(age),
+        tel = values(tel),
+        name = values(name)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update users
+        <set>
+            <if test="sex != null and sex != ''">
+                sex = #{sex},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="age != null">
+                age = #{age},
+            </if>
+            <if test="tel != null and tel != ''">
+                tel = #{tel},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+        </set>
+        where account = #{account}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from users where account = #{account}
+    </delete>
+
+</mapper>
+

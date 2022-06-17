@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登录</title>
+<link rel="stylesheet" type="text/css" href="./css/styles.css">
+</head>
+<body>
+<div class="htmleaf-container">
+	<div class="wrapper">
+		<div class="container">
+			<h1>Welcome</h1>
+			
+			<form class="form" style="margin-top: -10px">
+				<input type="account" placeholder="请输入账号" name="name" id="name"/>
+				<input type="password" placeholder="请输入密码" name="pwd" id="pwd"/>
+				<input type="text"  placeholder="验证码" name="yzm" id="yzm"/>
+
+				<button type="submit" id="login-button">登录</button><br/>
+				<button type="button" id="login-button1" style="margin-top: 5px;margin-left:122px">注册</button>
+				<canvas id="c3" style="position: relative;left: 20px;top: -90px"></canvas>
+			</form>
+		</div>
+		
+		<ul class="bg-bubbles">
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+		</ul>
+	</div>
+</div>
+<script src="./js/jquery.min.js"></script>
+<script src="./lib/layui/layui.js" charset="utf-8"></script>
+<script type="text/javascript" src="./js/md5.js"></script>
+<script src="./js/jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
+<script src="./js/xadmin.js"></script>
+
+<script>
+	//创建两个变量保存验证码的宽度和高度
+	var w = 120;
+	var h = 30;
+	//将变量值赋值给canvas
+	c3.width = w;
+	c3.height = h;
+	//获取画笔
+	var ctx = c3.getContext("2d");
+	//创建两个函数，返回指定范围内的随机数，随机颜色
+	//随机数
+	function rn(min,max){
+		var n = Math.random()*(max-min)+min;
+		return Math.floor(n);
+	}
+	//随机颜色
+	function rc(min,max){
+		var r = rn(min,max);
+		var g = rn(min,max);
+		var b = rn(min,max);
+		return `rgb(${r},${g},${b})`;
+	}
+	//填充的背景
+	ctx.fillStyle=rc(180,230);
+	ctx.fillRect(0,0,w,h);
+	//创建一个随机的文字[字母和数字]4个
+	var pool = "1234";
+	var str ="";
+	for(var i = 0;i<4;i++){
+		var index = Math.floor(Math.random()*pool.length);
+		str +=pool[index];
+	}
+	sessionStorage.setItem("yzm",str);
+	//console.log(str);
+	ctx.font = "30px SimHei";
+	ctx.fillStyle = rc(80,180);//文字颜色
+	ctx.textBaseline="top";
+	ctx.fillText(str,20,0);//在（20,0）处开始填充文字
+	//绘制6条干扰线
+	for(var i = 0;i<6;i++){
+		ctx.strokeStyle = rc(0,255);
+		ctx.beginPath();
+		ctx.moveTo(rn(0,w),rn(0,h));
+		ctx.lineTo(rn(0,w),rn(0,h));
+		ctx.stroke();
+	}
+	//绘制50个干扰点
+	for(var i = 0;i<50;i++){
+		ctx.fillStyle = rc(0,255);
+		ctx.beginPath();
+		ctx.arc(rn(0,w),rn(0,h),1,0,2*Math.PI);
+		ctx.fill();
+	}
+</script>
+<script>
+$(function () {
+	
+	$("#c3").click(function () {
+		window.location.reload();
+	})
+	$("#login-button1").click(function () {
+		// alert(111);
+		window.location.href='./member-add.html';
+	});
+
+
+
+
+	$('#login-button').click(function (event) {
+		var name =$("#name").val();
+		var pwd =$("#pwd").val();
+		console.log($("#name").val()+$("#pwd").val());
+		console.log(sessionStorage.getItem("yzm"));
+		console.log($("#yzn").val());
+		if($("#yzm").val()!=sessionStorage.getItem("yzm")){
+			alert("验证码输入错误");
+			window.location.reload();
+		}else if(name!=""&&pwd!=""){
+			var urlz =window.location.host;
+			var sid= spMD5(name);
+			$.ajax({
+				url:url+"/users/login",
+				type:'post',
+				dataType:"json",
+				// url:"/account/login",
+				data:{
+					account:name,
+					password:pwd,
+				},
+				async: false,
+				success:function(msg){
+					console.log(msg)
+					if(msg.code==1)
+					{
+
+						event.preventDefault();
+						$('form').fadeOut(500);
+						$('.wrapper').addClass('form-success');
+						// sessionStorage.setItem('login',name);
+						// sessionStorage.setItem("powerz",msg.data[1]);
+						sessionStorage.setItem('user',JSON.stringify(msg.data));
+						sessionStorage.setItem("name",name);
+						sessionStorage.setItem('sid',sid);
+						//console.log(JSON.parse(sessionStorage.getItem('login')));
+						// alert(msg.info);
+						setTimeout(send,2000)
+					}else{
+						alert(msg.info);
+					}
+				}
+			})
+			function send() {
+
+				location.href = './index.html';
+				// if(sessionStorage.getItem('powerz')==1){
+				// 	sessionStorage.setItem("user",	sessionStorage.getItem('login'));
+				// 	location.href = './index.html';
+				// }else {
+				// 	location.href = './home.html';
+				// }
+			}
+		}
+
+		// 	success:function (json) {
+		// 		console.log(json);
+		// 		// if(json.code==1){
+		// 		// 	//event.preventDefault();
+		// 		// 	// $('form').fadeOut(500);
+		// 		// 	// $('.wrapper').addClass('form-success');
+		// 		// 	alert(json.info);
+		// 		// 	location.href='./home.html';
+		// 		// }else{
+		// 		// 	alert(json.info);
+		// 		// }
+		// 	},
+		// 	error:function (e) {
+		// 		console.log(e);
+		// 	}
+		// });
+	});
+})
+
+</script>
+
+<div style="text-align:center;margin:50px 0; font:normal 14px/24px 'MicroSoft YaHei';color:#000000">
+<h1>航班管理系统</h1>
+</div>
+</body>
+</html>

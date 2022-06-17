@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.dao.FlightDao">
+
+    <resultMap type="com.example.entity.Flight" id="FlightMap">
+        <result property="companyName" column="company_name" jdbcType="VARCHAR"/>
+        <result property="planetype" column="planeType" jdbcType="VARCHAR"/>
+        <result property="flightnumber" column="flightNumber" jdbcType="VARCHAR"/>
+        <result property="departurecity" column="DepartureCity" jdbcType="VARCHAR"/>
+        <result property="arrivalcity" column="ArrivalCity" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="FlightMap">
+        select
+          company_name, planeType, flightNumber, DepartureCity, ArrivalCity
+        from flight
+        where flightNumber = #{flightnumber}
+    </select>
+
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimits" resultMap="FlightMap">
+        select
+          company_name, planeType, flightNumber, DepartureCity, ArrivalCity
+        from flight
+        <where>
+            <if test="Flight.companyName != null and Flight.companyName != ''">
+                and company_name = #{Flight.companyName}
+            </if>
+            <if test="Flight.planetype != null and Flight.planetype != ''">
+                and planeType = #{Flight.planetype}
+            </if>
+            <if test="Flight.flightnumber != null and Flight.flightnumber != ''">
+                and flightNumber = #{Flight.flightnumber}
+            </if>
+            <if test="Flight.departurecity != null and Flight.departurecity != ''">
+                and DepartureCity = #{Flight.departurecity}
+            </if>
+            <if test="Flight.arrivalcity != null and Flight.arrivalcity != ''">
+                and ArrivalCity = #{Flight.arrivalcity}
+            </if>
+        </where>
+        limit #{page}, #{pageSize}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from flight
+        <where>
+            <if test="companyName != null and companyName != ''">
+                and company_name = #{companyName}
+            </if>
+            <if test="planetype != null and planetype != ''">
+                and planeType = #{planetype}
+            </if>
+            <if test="flightnumber != null and flightnumber != ''">
+                and flightNumber = #{flightnumber}
+            </if>
+            <if test="departurecity != null and departurecity != ''">
+                and DepartureCity = #{departurecity}
+            </if>
+            <if test="arrivalcity != null and arrivalcity != ''">
+                and ArrivalCity = #{arrivalcity}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="flightnumber" useGeneratedKeys="true">
+        insert into flight(company_name, planeType,flightnumber, DepartureCity, ArrivalCity)
+        values (#{companyName}, #{planetype}, #{flightnumber},#{departurecity}, #{arrivalcity})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="flightnumber" useGeneratedKeys="true">
+        insert into flight(company_name, planeType,flightnumber, DepartureCity, ArrivalCity)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.companyName}, #{entity.planetype}, #{flightnumber},#{entity.departurecity}, #{entity.arrivalcity})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="flightnumber" useGeneratedKeys="true">
+        insert into flight(company_name, planeType,flightnumber, DepartureCity, ArrivalCity)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.companyName}, #{entity.planetype}, #{entity.departurecity}, #{entity.arrivalcity})
+        </foreach>
+        on duplicate key update
+        company_name = values(company_name),
+        planeType = values(planeType),
+        DepartureCity = values(DepartureCity),
+        ArrivalCity = values(ArrivalCity)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update flight
+        <set>
+            <if test="companyName != null and companyName != ''">
+                company_name = #{companyName},
+            </if>
+            <if test="planetype != null and planetype != ''">
+                planeType = #{planetype},
+            </if>
+            <if test="departurecity != null and departurecity != ''">
+                DepartureCity = #{departurecity},
+            </if>
+            <if test="arrivalcity != null and arrivalcity != ''">
+                ArrivalCity = #{arrivalcity},
+            </if>
+        </set>
+        where flightNumber = #{flightnumber}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from flight where flightNumber = #{flightnumber}
+    </delete>
+
+</mapper>
+

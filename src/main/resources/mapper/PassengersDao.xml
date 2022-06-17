@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.dao.PassengersDao">
+
+    <resultMap type="com.example.entity.Passengers" id="PassengersMap">
+        <result property="ordernumber" column="orderNumber" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="seat" column="seat" jdbcType="VARCHAR"/>
+        <result property="degree" column="degree" jdbcType="VARCHAR"/>
+        <result property="classnumber" column="classNumber" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="PassengersMap">
+        select
+          orderNumber, name, id,  seat,  degree, classNumber
+        from passengers
+        where orderNumber = #{ordernumber}
+    </select>
+
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimits" resultMap="PassengersMap">
+        select
+          orderNumber, name, id,  seat, degree, classNumber
+        from passengers
+        <where>
+            <if test="Passengers.ordernumber != null">
+                and orderNumber = #{Passengers.ordernumber}
+            </if>
+            <if test="Passengers.name != null and Passengers.name != ''">
+                and name = #{Passengers.name}
+            </if>
+            <if test="Passengers.id != null and Passengers.id != ''">
+                and id = #{Passengers.id}
+            </if>
+
+            <if test="Passengers.seat != null and Passengers.seat != ''">
+                and seat = #{Passengers.seat}
+            </if>
+            <if test="Passengers.degree != null and Passengers.degree != ''">
+                and degree = #{Passengers.degree}
+            </if>
+            <if test="Passengers.classnumber != null and Passengers.classnumber != ''">
+                and classNumber = #{Passengers.classnumber}
+            </if>
+        </where>
+        limit #{page}, #{pageSize}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from passengers
+        <where>
+            <if test="ordernumber != null">
+                and orderNumber = #{ordernumber}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+
+            <if test="seat != null and seat != ''">
+                and seat = #{seat}
+            </if>
+
+            <if test="degree != null and degree != ''">
+                and degree = #{degree}
+            </if>
+            <if test="classnumber != null and classnumber != ''">
+                and classNumber = #{classnumber}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="ordernumber" useGeneratedKeys="true">
+        insert into passengers(ordernumber,name, id,  seat, degree, classNumber)
+        values (#{ordernumber},#{name}, #{id},  #{seat},  #{degree}, #{classnumber})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="ordernumber" useGeneratedKeys="true">
+        insert into passengers(ordernumber,name, id,  seat, degree, classNumber)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.name}, #{entity.id},  #{entity.seat},  #{entity.degree}, #{entity.classnumber})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="ordernumber" useGeneratedKeys="true">
+        insert into passengers(ordernumber,name, id,  seat,  degree, classNumber)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.name}, #{entity.id},  #{entity.seat},  #{entity.degree}, #{entity.classnumber})
+        </foreach>
+        on duplicate key update
+        name = values(name),
+        id = values(id),
+        seat = values(seat),
+        degree = values(degree),
+        classNumber = values(classNumber)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update passengers
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="id != null and id != ''">
+                id = #{id},
+            </if>
+
+            <if test="seat != null and seat != ''">
+                seat = #{seat},
+            </if>
+            <if test="degree != null and degree != ''">
+                degree = #{degree},
+            </if>
+            <if test="classnumber != null and classnumber != ''">
+                classNumber = #{classnumber},
+            </if>
+        </set>
+        where orderNumber = #{ordernumber}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from passengers where orderNumber = #{ordernumber}
+    </delete>
+
+</mapper>
+
